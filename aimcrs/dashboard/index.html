@@ -211,7 +211,12 @@
                     <span class="status-dot green" id="statusDot"></span>
                     <span id="statusText">Connecting...</span>
                 </span>
-                <span>Round: <span id="roundNum">0</span></span>
+                <span>Cycle: <span id="cycleNum">0</span> | Round: <span id="roundNum">0</span></span>
+            </div>
+
+            <!-- Data Mode Banner -->
+            <div id="dataModeBanner" style="padding:4px 16px; font-size:10px; text-align:center; background:#161b22; border-bottom:1px solid #21262d; color:#8b949e;">
+                Data: <span id="dataMode">STARTING</span> | Sources: <span id="dataSources">-</span>
             </div>
 
             <!-- Threat Level -->
@@ -771,9 +776,42 @@
                 var s = data.simulation_status || "IDLE";
                 var dot = document.getElementById("statusDot");
                 var txt = document.getElementById("statusText");
-                if (s === "COMPLETED") { dot.className="status-dot green"; txt.textContent="Simulation Complete"; }
-                else if (s === "RUNNING" || s === "PULLING_DATA") { dot.className="status-dot yellow"; txt.textContent=s==="PULLING_DATA"?"Pulling Live Data...":"Simulation Running..."; }
-                else { dot.className="status-dot yellow"; txt.textContent=s; }
+
+                if (s === "WAITING") {
+                    dot.className = "status-dot green";
+                    txt.textContent = "Agents Active — Waiting for next cycle";
+                } else if (s === "RUNNING") {
+                    dot.className = "status-dot yellow";
+                    txt.textContent = "Agents Simulating...";
+                } else if (s === "PULLING_DATA") {
+                    dot.className = "status-dot yellow";
+                    txt.textContent = "Pulling Live Data...";
+                } else {
+                    dot.className = "status-dot yellow";
+                    txt.textContent = s;
+                }
+
+                // Update cycle counter
+                document.getElementById("cycleNum").textContent = data.cycle || 0;
+
+                // Update data mode banner
+                var mode = data.data_mode || "STARTING";
+                var modeBanner = document.getElementById("dataModeBanner");
+                var modeSpan = document.getElementById("dataMode");
+                var sourcesSpan = document.getElementById("dataSources");
+                modeSpan.textContent = mode;
+                sourcesSpan.textContent = (data.data_sources_active || []).join(", ") || "-";
+
+                if (mode === "LIVE") {
+                    modeBanner.style.background = "#0d2818";
+                    modeBanner.style.color = "#3fb950";
+                } else if (mode === "DEMO") {
+                    modeBanner.style.background = "#1c1400";
+                    modeBanner.style.color = "#d29922";
+                } else if (mode === "MIXED") {
+                    modeBanner.style.background = "#161b22";
+                    modeBanner.style.color = "#58a6ff";
+                }
             })
             .catch(function() {
                 document.getElementById("statusDot").className = "status-dot red";
