@@ -179,6 +179,114 @@
         }
 
         .cesium-viewer-bottom { display: none !important; }
+
+        /* ─── GOD MODE STYLES ─── */
+        .god-mode-active .header {
+            background: linear-gradient(135deg, #200000, #161b22);
+            border-bottom: 2px solid #f85149;
+        }
+        .god-mode-active .header h1 { color: #f85149; }
+        .god-mode-badge {
+            display: inline-block; padding: 2px 8px; border-radius: 3px;
+            font-size: 9px; font-weight: bold; letter-spacing: 1px;
+            background: #f85149; color: #fff; margin-left: 8px;
+            animation: pulse 1.5s infinite;
+        }
+        .god-mode-badge.off { display: none; }
+
+        .gm-toggle-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 0;
+        }
+        .gm-switch {
+            position: relative; width: 44px; height: 22px; cursor: pointer;
+        }
+        .gm-switch input { display: none; }
+        .gm-slider {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: #21262d; border-radius: 22px; transition: 0.3s;
+        }
+        .gm-slider::before {
+            content: ""; position: absolute; width: 18px; height: 18px;
+            left: 2px; top: 2px; background: #8b949e; border-radius: 50%;
+            transition: 0.3s;
+        }
+        .gm-switch input:checked + .gm-slider { background: #f85149; }
+        .gm-switch input:checked + .gm-slider::before {
+            transform: translateX(22px); background: #fff;
+        }
+
+        .gm-agent-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 4px 0; font-size: 11px;
+        }
+        .gm-agent-row .btn { padding: 3px 8px; font-size: 10px; }
+        .gm-agent-row .btn.paused { background: #f85149; border-color: #f85149; color: #fff; }
+
+        .gm-override-row {
+            display: flex; gap: 4px; align-items: center; margin-top: 6px;
+        }
+        .gm-override-row select, .gm-override-row input {
+            background: #0d1117; border: 1px solid #21262d; color: #c9d1d9;
+            padding: 4px 6px; font-family: inherit; font-size: 11px;
+            border-radius: 3px;
+        }
+        .gm-override-row select { width: 90px; }
+
+        /* ─── OPERATOR CONSOLE (CHAT) ─── */
+        .chat-container {
+            display: flex; flex-direction: column; max-height: 300px;
+        }
+        .chat-messages {
+            flex: 1; overflow-y: auto; padding: 8px 0;
+            max-height: 200px; min-height: 80px;
+        }
+        .chat-msg {
+            padding: 4px 0; font-size: 11px; line-height: 1.4;
+            border-bottom: 1px solid #161b22;
+        }
+        .chat-msg.operator { color: #58a6ff; }
+        .chat-msg.system { color: #3fb950; }
+        .chat-msg .chat-label {
+            font-size: 9px; color: #484f58; text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .chat-msg pre {
+            margin: 2px 0 0 0; white-space: pre-wrap; font-family: inherit;
+            font-size: 11px;
+        }
+        .chat-input-row {
+            display: flex; gap: 4px; padding-top: 8px;
+            border-top: 1px solid #21262d;
+        }
+        .chat-input-row input {
+            flex: 1; background: #0d1117; border: 1px solid #21262d;
+            color: #c9d1d9; padding: 6px 8px; font-family: inherit;
+            font-size: 12px; border-radius: 4px; outline: none;
+        }
+        .chat-input-row input:focus { border-color: #58a6ff; }
+
+        /* ─── FILE UPLOAD ─── */
+        .file-drop-zone {
+            border: 2px dashed #21262d; border-radius: 6px;
+            padding: 16px; text-align: center; cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            margin-bottom: 8px;
+        }
+        .file-drop-zone:hover, .file-drop-zone.drag-over {
+            border-color: #58a6ff; background: rgba(88,166,255,0.05);
+        }
+        .file-drop-zone .drop-icon { font-size: 24px; color: #484f58; }
+        .file-drop-zone .drop-text { font-size: 11px; color: #8b949e; margin-top: 4px; }
+        .file-drop-zone input[type="file"] { display: none; }
+
+        .file-list { max-height: 120px; overflow-y: auto; }
+        .file-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 4px 0; font-size: 11px; border-bottom: 1px solid #161b22;
+        }
+        .file-item .file-name { color: #58a6ff; flex: 1; overflow: hidden; text-overflow: ellipsis; }
+        .file-item .file-size { color: #8b949e; margin-left: 8px; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -400,6 +508,111 @@
                         <div class="control-row"><label>7. Red Team Adversary</label><span class="val" style="color:#f0883e;">ACTIVE</span></div>
                         <div class="control-row"><label>8. Report Synthesiser</label><span class="val" style="color:#d2a8ff;">ACTIVE</span></div>
                     </div>
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 5: GOD MODE ═══ -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection('godMode')">
+                    GOD MODE <span class="god-mode-badge off" id="gmBadge">ACTIVE</span>
+                    <span class="arrow" id="arrow-godMode">&#9654;</span>
+                </div>
+                <div class="section-body" id="godMode">
+                    <div class="gm-toggle-row">
+                        <label style="font-size:12px; color:#f85149; font-weight:bold;">Enable God Mode</label>
+                        <label class="gm-switch">
+                            <input type="checkbox" id="gmToggle" onchange="toggleGodMode(this.checked)">
+                            <span class="gm-slider"></span>
+                        </label>
+                    </div>
+                    <div style="font-size:10px; color:#484f58; margin-bottom:8px;">
+                        Grants manual override of all threat levels, agent controls, and scenario scoring.
+                    </div>
+
+                    <div id="gmControls" style="display:none;">
+                        <!-- Manual Threat Level -->
+                        <div style="font-size:11px; color:#8b949e; margin:8px 0 4px;">FORCE THREAT LEVEL</div>
+                        <div class="btn-row">
+                            <button class="btn" onclick="setManualThreat(null)">AUTO</button>
+                            <button class="btn" style="color:#3fb950" onclick="setManualThreat('LOW')">LOW</button>
+                            <button class="btn" style="color:#d29922" onclick="setManualThreat('MEDIUM')">MEDIUM</button>
+                            <button class="btn" style="color:#f0883e" onclick="setManualThreat('HIGH')">HIGH</button>
+                            <button class="btn" style="color:#f85149" onclick="setManualThreat('CRITICAL')">CRITICAL</button>
+                        </div>
+
+                        <!-- Agent Pause/Resume -->
+                        <div style="font-size:11px; color:#8b949e; margin:10px 0 4px;">AGENT CONTROLS</div>
+                        <div id="gmAgentList">
+                            <div class="gm-agent-row"><span>Air Domain Watcher</span><button class="btn" onclick="toggleAgent('AIR_WATCH',this)">Pause</button></div>
+                            <div class="gm-agent-row"><span>Ground Movement Analyst</span><button class="btn" onclick="toggleAgent('GROUND_WATCH',this)">Pause</button></div>
+                            <div class="gm-agent-row"><span>Signals & News Analyst</span><button class="btn" onclick="toggleAgent('SIGNALS_WATCH',this)">Pause</button></div>
+                            <div class="gm-agent-row"><span>Maritime Domain Watcher</span><button class="btn" onclick="toggleAgent('MARITIME_WATCH',this)">Pause</button></div>
+                            <div class="gm-agent-row"><span>Environmental Monitor</span><button class="btn" onclick="toggleAgent('ENVIRONMENT_WATCH',this)">Pause</button></div>
+                            <div class="gm-agent-row"><span>Cross-Domain Correlator</span><button class="btn" onclick="toggleAgent('CORRELATOR',this)">Pause</button></div>
+                            <div class="gm-agent-row"><span>Red Team Adversary</span><button class="btn" onclick="toggleAgent('RED_TEAM',this)">Pause</button></div>
+                            <div class="gm-agent-row"><span>Report Synthesiser</span><button class="btn" onclick="toggleAgent('REPORT_AGENT',this)">Pause</button></div>
+                        </div>
+
+                        <!-- Scenario Override -->
+                        <div style="font-size:11px; color:#8b949e; margin:10px 0 4px;">OVERRIDE SCENARIO SCORE</div>
+                        <div class="gm-override-row">
+                            <select id="gmScenarioSelect"><option value="">Select scenario...</option></select>
+                            <input type="number" id="gmNewScore" placeholder="0.0-1.0" min="0" max="1" step="0.1" style="width:70px;">
+                            <button class="btn btn-blue" onclick="overrideScenario()">Set</button>
+                            <button class="btn" style="color:#f85149" onclick="dismissScenario()">Dismiss</button>
+                        </div>
+                        <div style="margin-top:4px;">
+                            <input type="text" id="gmOverrideNotes" placeholder="Override reason..." style="width:100%; background:#0d1117; border:1px solid #21262d; color:#c9d1d9; padding:4px 6px; font-family:inherit; font-size:11px; border-radius:3px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 6: OPERATOR CONSOLE (CHAT) ═══ -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection('operatorConsole')">
+                    OPERATOR CONSOLE
+                    <span class="arrow" id="arrow-operatorConsole">&#9654;</span>
+                </div>
+                <div class="section-body" id="operatorConsole">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="chat-msg system">
+                                <div class="chat-label">system</div>
+                                <pre>Operator Console ready. Type 'help' for available queries.
+Ask about: threat status, aircraft, earthquakes, news, agents, files.</pre>
+                            </div>
+                        </div>
+                        <div class="chat-input-row">
+                            <input type="text" id="chatInput" placeholder="Ask the system a question..."
+                                   onkeydown="if(event.key==='Enter')sendChat()">
+                            <button class="btn btn-blue" onclick="sendChat()">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 7: FILE UPLOAD ═══ -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection('fileUpload')">
+                    FILE UPLOAD — INTEL DOCUMENTS
+                    <span class="arrow" id="arrow-fileUpload">&#9654;</span>
+                </div>
+                <div class="section-body" id="fileUpload">
+                    <div class="file-drop-zone" id="dropZone"
+                         onclick="document.getElementById('fileInput').click()"
+                         ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                         ondragleave="this.classList.remove('drag-over')"
+                         ondrop="handleFileDrop(event)">
+                        <div class="drop-icon">+</div>
+                        <div class="drop-text">Click or drag files here to upload intel documents</div>
+                        <div style="font-size:10px; color:#484f58; margin-top:4px;">PDF, images, text, CSV — any file type</div>
+                        <input type="file" id="fileInput" multiple onchange="handleFileSelect(this.files)">
+                    </div>
+                    <div style="font-size:10px; color:#8b949e; margin-bottom:6px;">
+                        Uploaded: <span id="fileCount">0</span> files
+                    </div>
+                    <div class="file-list" id="fileList"></div>
                 </div>
             </div>
 
@@ -908,9 +1121,237 @@
         document.getElementById("statTime").textContent = new Date().toLocaleTimeString();
     }
 
+    // ════════════════════════════════════════════
+    // GOD MODE FUNCTIONS
+    // ════════════════════════════════════════════
+
+    var godModeEnabled = false;
+
+    function toggleGodMode(enabled) {
+        godModeEnabled = enabled;
+        var badge = document.getElementById("gmBadge");
+        var controls = document.getElementById("gmControls");
+        var layout = document.querySelector(".layout");
+
+        if (enabled) {
+            badge.classList.remove("off");
+            controls.style.display = "block";
+            document.querySelector(".panel").classList.add("god-mode-active");
+        } else {
+            badge.classList.add("off");
+            controls.style.display = "none";
+            document.querySelector(".panel").classList.remove("god-mode-active");
+        }
+
+        fetch("/api/godmode/toggle", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({enabled: enabled}),
+        });
+    }
+
+    function setManualThreat(level) {
+        fetch("/api/godmode/threat-level", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({level: level}),
+        }).then(function(r) { return r.json(); }).then(function() {
+            fetchAndUpdate();
+        });
+    }
+
+    function toggleAgent(role, btn) {
+        var isPaused = btn.classList.contains("paused");
+        var action = isPaused ? "resume" : "pause";
+
+        fetch("/api/godmode/agent", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({agent_role: role, action: action}),
+        }).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.paused) {
+                btn.classList.add("paused");
+                btn.textContent = "Resume";
+            } else {
+                btn.classList.remove("paused");
+                btn.textContent = "Pause";
+            }
+        });
+    }
+
+    function overrideScenario() {
+        var select = document.getElementById("gmScenarioSelect");
+        var scoreInput = document.getElementById("gmNewScore");
+        var notes = document.getElementById("gmOverrideNotes").value;
+        var scenarioId = select.value;
+        var newScore = parseFloat(scoreInput.value);
+
+        if (!scenarioId) return;
+        if (isNaN(newScore) || newScore < 0 || newScore > 1) {
+            alert("Score must be between 0.0 and 1.0");
+            return;
+        }
+
+        fetch("/api/godmode/override", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({scenario_id: scenarioId, score: newScore, notes: notes}),
+        }).then(function(r) { return r.json(); }).then(function() {
+            fetchAndUpdate();
+            scoreInput.value = "";
+            document.getElementById("gmOverrideNotes").value = "";
+        });
+    }
+
+    function dismissScenario() {
+        var select = document.getElementById("gmScenarioSelect");
+        var notes = document.getElementById("gmOverrideNotes").value;
+        var scenarioId = select.value;
+        if (!scenarioId) return;
+
+        fetch("/api/godmode/override", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({scenario_id: scenarioId, dismiss: true, notes: notes || "Dismissed by operator"}),
+        }).then(function(r) { return r.json(); }).then(function() {
+            fetchAndUpdate();
+        });
+    }
+
+    function updateScenarioDropdown(scenarios) {
+        var select = document.getElementById("gmScenarioSelect");
+        var current = select.value;
+        select.innerHTML = '<option value="">Select scenario...</option>';
+        if (!scenarios) return;
+        scenarios.forEach(function(s) {
+            if (!s || !s.scenario_id) return;
+            var opt = document.createElement("option");
+            opt.value = s.scenario_id;
+            opt.textContent = (s.title || "Unknown").substring(0, 40) + " (" + ((s.combined_score || 0) * 100).toFixed(0) + "%)";
+            select.appendChild(opt);
+        });
+        if (current) select.value = current;
+    }
+
+    // ════════════════════════════════════════════
+    // OPERATOR CONSOLE (CHAT) FUNCTIONS
+    // ════════════════════════════════════════════
+
+    function sendChat() {
+        var input = document.getElementById("chatInput");
+        var message = input.value.trim();
+        if (!message) return;
+        input.value = "";
+
+        // Show operator message immediately
+        appendChatMessage("operator", message);
+
+        fetch("/api/chat", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({message: message}),
+        }).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.reply) {
+                appendChatMessage("system", data.reply);
+            }
+        }).catch(function() {
+            appendChatMessage("system", "ERROR: Could not reach server.");
+        });
+    }
+
+    function appendChatMessage(role, text) {
+        var container = document.getElementById("chatMessages");
+        var div = document.createElement("div");
+        div.className = "chat-msg " + role;
+        div.innerHTML =
+            '<div class="chat-label">' + role + '</div>' +
+            '<pre>' + escapeHtml(text) + '</pre>';
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+        var div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ════════════════════════════════════════════
+    // FILE UPLOAD FUNCTIONS
+    // ════════════════════════════════════════════
+
+    function handleFileDrop(event) {
+        event.preventDefault();
+        document.getElementById("dropZone").classList.remove("drag-over");
+        var files = event.dataTransfer.files;
+        if (files.length > 0) uploadFiles(files);
+    }
+
+    function handleFileSelect(files) {
+        if (files.length > 0) uploadFiles(files);
+    }
+
+    function uploadFiles(files) {
+        var formData = new FormData();
+        for (var i = 0; i < files.length; i++) {
+            formData.append("file", files[i]);
+        }
+
+        fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+        }).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.files) {
+                data.files.forEach(function(f) {
+                    addFileToList(f);
+                });
+                document.getElementById("fileCount").textContent = data.total_uploaded || 0;
+            }
+        }).catch(function(err) {
+            appendChatMessage("system", "File upload failed: " + err);
+        });
+
+        // Reset the file input
+        document.getElementById("fileInput").value = "";
+    }
+
+    function addFileToList(fileMeta) {
+        var list = document.getElementById("fileList");
+        var div = document.createElement("div");
+        div.className = "file-item";
+        div.innerHTML =
+            '<span class="file-name">' + escapeHtml(fileMeta.name) + '</span>' +
+            '<span class="file-size">' + (fileMeta.size_kb || 0).toFixed(1) + ' KB</span>';
+        list.appendChild(div);
+    }
+
+    function loadExistingFiles() {
+        fetch("/api/files").then(function(r) { return r.json(); }).then(function(data) {
+            var list = document.getElementById("fileList");
+            list.innerHTML = "";
+            (data.files || []).forEach(function(f) { addFileToList(f); });
+            document.getElementById("fileCount").textContent = (data.files || []).length;
+        }).catch(function(){});
+    }
+
+    // ════════════════════════════════════════════
+    // ENHANCED FETCH — also updates god mode and scenario dropdown
+    // ════════════════════════════════════════════
+
+    var _originalFetchAndUpdate = fetchAndUpdate;
+    fetchAndUpdate = function() {
+        _originalFetchAndUpdate();
+
+        // Update scenario dropdown for god mode
+        fetch("/api/report").then(function(r){return r.json();}).then(function(d) {
+            if (d.scenarios) updateScenarioDropdown(d.scenarios);
+        }).catch(function(){});
+    };
+
     // ═══ START ═══
     fetchAndUpdate();
     refreshTimer = setInterval(fetchAndUpdate, 30000);
+    loadExistingFiles();
 
     </script>
 </body>
