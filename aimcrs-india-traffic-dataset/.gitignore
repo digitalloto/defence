@@ -1,0 +1,128 @@
+# ============================================
+# AIMCRS India Traffic Dataset — .gitignore
+# ============================================
+# This file tells Git which files to IGNORE
+# (not upload to GitHub). We ignore large files,
+# secret keys, and temporary files.
+# ============================================
+
+# ----- LARGE VIDEO FILES -----
+# Videos are too big for GitHub (100MB limit).
+# We store them locally only.
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.wmv
+*.flv
+*.webm
+*.m4v
+*.mpg
+*.mpeg
+*.3gp
+
+# ----- LARGE IMAGE ARCHIVES -----
+# Raw image archives — too large for GitHub
+*.zip
+*.tar.gz
+*.tar
+*.rar
+*.7z
+
+# ----- RAW FOOTAGE FOLDERS -----
+# These folders hold downloaded raw data.
+# Too large for GitHub — keep local only.
+raw/youtube/*
+raw/government/*
+raw/academic/*
+raw/kaggle/*
+
+# But keep the folders themselves (using .gitkeep)
+!raw/youtube/.gitkeep
+!raw/government/.gitkeep
+!raw/academic/.gitkeep
+!raw/kaggle/.gitkeep
+
+# ----- PROCESSED DATA -----
+# Processed images and labels — large files
+processed/labelled/*
+processed/unlabelled/*
+processed/augmented/*
+!processed/labelled/.gitkeep
+!processed/unlabelled/.gitkeep
+!processed/augmented/.gitkeep
+
+# ----- DATASET SPLITS -----
+datasets/train/*
+datasets/validation/*
+datasets/test/*
+!datasets/train/.gitkeep
+!datasets/validation/.gitkeep
+!datasets/test/.gitkeep
+
+# ----- TRAINED MODEL FILES -----
+# Model weights are large binary files
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.h5
+*.pb
+*.weights
+models/vehicle_detection/*
+models/ambulance_detection/*
+models/flow_analysis/*
+!models/vehicle_detection/.gitkeep
+!models/ambulance_detection/.gitkeep
+!models/flow_analysis/.gitkeep
+
+# ----- SECRET FILES -----
+# NEVER upload API keys or passwords!
+.env
+.env.local
+.env.production
+*.key
+*.pem
+credentials.json
+kaggle.json
+
+# ----- PYTHON TEMPORARY FILES -----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ----- VIRTUAL ENVIRONMENT -----
+# Python virtual environment — recreate with pip install
+venv/
+env/
+.venv/
+
+# ----- JUPYTER NOTEBOOK CHECKPOINTS -----
+.ipynb_checkpoints/
+
+# ----- OPERATING SYSTEM FILES -----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ----- IDE FILES -----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ----- LOG FILES -----
+# Keep log structure but not old logs
+logs/*.log
+*.log
+
+# ----- TEMPORARY FILES -----
+tmp/
+temp/
+*.tmp

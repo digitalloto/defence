@@ -1,0 +1,43 @@
+# ============================================
+# AIMCRS India Traffic Dataset — Python Packages
+# ============================================
+# Install with: pip install -r requirements.txt
+# ============================================
+
+# ----- VIDEO DOWNLOADING -----
+yt-dlp>=2024.1.0          # Downloads YouTube videos (free, open source)
+
+# ----- DATA PROCESSING -----
+pandas>=2.0.0             # Works with tables and CSV files
+numpy>=1.24.0             # Math operations on data
+Pillow>=10.0.0            # Image processing (resize, crop, convert)
+opencv-python>=4.8.0      # Video processing (extract frames, etc.)
+imagehash>=4.3.0          # Detect duplicate images
+
+# ----- AI AND MACHINE LEARNING -----
+ultralytics>=8.0.0        # YOLOv8 — vehicle and ambulance detection
+torch>=2.0.0              # PyTorch — the AI engine behind YOLO
+torchvision>=0.15.0       # Image tools for PyTorch
+
+# ----- DATASET PLATFORMS -----
+kaggle>=1.6.0             # Download datasets from Kaggle
+roboflow>=1.0.0           # Download datasets from Roboflow
+
+# ----- API AND WEB -----
+requests>=2.31.0          # Make web requests (download files, call APIs)
+beautifulsoup4>=4.12.0    # Read web pages (for scraping data)
+aiohttp>=3.9.0            # Async web requests (faster downloads)
+
+# ----- DATA AUGMENTATION -----
+albumentations>=1.3.0     # Image augmentation (flip, brighten, etc.)
+
+# ----- DASHBOARD -----
+flask>=3.0.0              # Simple web server for dashboard
+plotly>=5.18.0            # Interactive charts and graphs
+
+# ----- UTILITIES -----
+python-dotenv>=1.0.0      # Load .env file (keeps API keys safe)
+tqdm>=4.66.0              # Progress bars (shows download progress)
+loguru>=0.7.0             # Better logging (tracks what happened)
+click>=8.1.0              # Command line interface tools
+pyyaml>=6.0.0             # Read YAML config files
