@@ -1,0 +1,8 @@
+# AIMCRS APINDRA — Dependencies
+# Install with: pip3 install -r requirements.txt
+#
+# All packages are FREE and open source.
+# No paid API keys required for core functionality.
+
+# HTTP requests — for calling APIs
+requests>=2.28.0

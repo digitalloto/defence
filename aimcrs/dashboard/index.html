@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIMCRS APINDRA — Defence Intelligence Dashboard</title>
+
+    <!--
+    ════════════════════════════════════════════════════════
+    AIMCRS APINDRA — Defence Intelligence Dashboard
+    ════════════════════════════════════════════════════════
+
+    What this page does:
+    - Shows a 3D globe with all data layers
+    - Aircraft positions shown as dots on the globe
+    - Earthquakes shown as circles
+    - Threat scenarios ranked in a sidebar
+    - Auto-refreshes every 30 seconds
+    - All data layers can be toggled on/off
+
+    Uses CesiumJS (open source) for the 3D globe.
+    No API key needed — uses the open source ion-free version.
+    ════════════════════════════════════════════════════════
+    -->
+
+    <!-- CesiumJS — Open source 3D globe library -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.124/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.124/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
+    <style>
+        /* ─── RESET & BASE ─── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0e17;
+            color: #e0e6f0;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* ─── LAYOUT: Globe on left, Panel on right ─── */
+        .layout {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* ─── 3D GLOBE ─── */
+        #cesiumContainer {
+            flex: 1;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* ─── RIGHT PANEL ─── */
+        .panel {
+            width: 420px;
+            background: #0d1117;
+            border-left: 1px solid #21262d;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* ─── HEADER ─── */
+        .header {
+            padding: 16px;
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+        }
+
+        .header h1 {
+            font-size: 14px;
+            color: #58a6ff;
+            letter-spacing: 2px;
+        }
+
+        .header .subtitle {
+            font-size: 11px;
+            color: #8b949e;
+            margin-top: 4px;
+        }
+
+        /* ─── STATUS BAR ─── */
+        .status-bar {
+            padding: 10px 16px;
+            background: #0d1117;
+            border-bottom: 1px solid #21262d;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.green { background: #3fb950; }
+        .status-dot.yellow { background: #d29922; }
+        .status-dot.red { background: #f85149; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ─── THREAT LEVEL BANNER ─── */
+        .threat-banner {
+            padding: 14px 16px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+
+        .threat-LOW { background: #0d1117; color: #3fb950; border-bottom: 2px solid #3fb950; }
+        .threat-MEDIUM { background: #1c1400; color: #d29922; border-bottom: 2px solid #d29922; }
+        .threat-HIGH { background: #200800; color: #f0883e; border-bottom: 2px solid #f0883e; }
+        .threat-CRITICAL { background: #200000; color: #f85149; border-bottom: 2px solid #f85149;
+                           animation: critical-flash 1s infinite; }
+
+        @keyframes critical-flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* ─── SCENARIO CARDS ─── */
+        .scenarios { padding: 12px; flex: 1; }
+
+        .scenario-card {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .scenario-card:hover {
+            border-color: #58a6ff;
+        }
+
+        .scenario-rank {
+            font-size: 11px;
+            color: #8b949e;
+        }
+
+        .scenario-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin: 4px 0;
+        }
+
+        .scenario-score {
+            font-size: 12px;
+            margin: 6px 0;
+        }
+
+        .score-bar {
+            display: inline-block;
+            height: 8px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .score-LOW { background: #3fb950; }
+        .score-MEDIUM { background: #d29922; }
+        .score-HIGH { background: #f0883e; }
+        .score-CRITICAL { background: #f85149; }
+
+        .scenario-desc {
+            font-size: 11px;
+            color: #8b949e;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        .scenario-action {
+            font-size: 11px;
+            color: #58a6ff;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #21262d;
+        }
+
+        /* ─── LAYER TOGGLES ─── */
+        .layers {
+            padding: 12px 16px;
+            border-top: 1px solid #21262d;
+        }
+
+        .layers h3 {
+            font-size: 11px;
+            color: #8b949e;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .layer-toggle input {
+            margin-right: 8px;
+        }
+
+        .layer-count {
+            margin-left: auto;
+            color: #8b949e;
+            font-size: 11px;
+        }
+
+        /* ─── FOOTER ─── */
+        .footer {
+            padding: 10px 16px;
+            border-top: 1px solid #21262d;
+            font-size: 10px;
+            color: #484f58;
+            text-align: center;
+        }
+
+        /* ─── GLOBE OVERLAY INFO ─── */
+        .globe-overlay {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(13, 17, 23, 0.85);
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid #21262d;
+            font-size: 11px;
+            z-index: 100;
+        }
+
+        .globe-overlay .stat {
+            margin: 4px 0;
+        }
+
+        .globe-overlay .stat-value {
+            color: #58a6ff;
+            font-weight: bold;
+        }
+
+        /* Hide Cesium credits for cleaner look */
+        .cesium-viewer-bottom { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- 3D GLOBE -->
+        <div id="cesiumContainer">
+            <div class="globe-overlay" id="globeOverlay">
+                <div class="stat">Aircraft: <span class="stat-value" id="statAircraft">—</span></div>
+                <div class="stat">Anomalies: <span class="stat-value" id="statAnomalies">—</span></div>
+                <div class="stat">Earthquakes: <span class="stat-value" id="statQuakes">—</span></div>
+                <div class="stat">News Signals: <span class="stat-value" id="statNews">—</span></div>
+                <div class="stat">Last Update: <span class="stat-value" id="statTime">—</span></div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="panel">
+            <!-- Header -->
+            <div class="header">
+                <h1>AIMCRS APINDRA</h1>
+                <div class="subtitle">Defence Intelligence Engine — Prototype v0.1</div>
+            </div>
+
+            <!-- Status -->
+            <div class="status-bar">
+                <span>
+                    <span class="status-dot green" id="statusDot"></span>
+                    <span id="statusText">Connecting...</span>
+                </span>
+                <span>Round: <span id="roundNum">0</span></span>
+            </div>
+
+            <!-- Threat Level -->
+            <div class="threat-banner threat-LOW" id="threatBanner">
+                THREAT: <span id="threatLevel">SCANNING</span>
+            </div>
+
+            <!-- Threat Scenarios -->
+            <div class="scenarios" id="scenarioList">
+                <div class="scenario-card">
+                    <div class="scenario-rank">Initialising...</div>
+                    <div class="scenario-title">Waiting for simulation data</div>
+                    <div class="scenario-desc">
+                        The engine is pulling live data and running agent analysis.
+                        Results will appear here within 30 seconds.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer Toggles -->
+            <div class="layers">
+                <h3>DATA LAYERS</h3>
+                <label class="layer-toggle">
+                    <input type="checkbox" id="layerAircraft" checked onchange="toggleLayer('aircraft')">
+                    Aircraft
+                    <span class="layer-count" id="countAircraft">0</span>
+                </label>
+                <label class="layer-toggle">
+                    <input type="checkbox" id="layerAnomalies" checked onchange="toggleLayer('anomalies')">
+                    Anomalies
+                    <span class="layer-count" id="countAnomalies">0</span>
+                </label>
+                <label class="layer-toggle">
+                    <input type="checkbox" id="layerQuakes" checked onchange="toggleLayer('quakes')">
+                    Earthquakes
+                    <span class="layer-count" id="countQuakes">0</span>
+                </label>
+                <label class="layer-toggle">
+                    <input type="checkbox" id="layerNews" checked onchange="toggleLayer('news')">
+                    News Signals
+                    <span class="layer-count" id="countNews">0</span>
+                </label>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                AIMCRS APINDRA Patent Architecture<br>
+                Human in the loop at every stage<br>
+                All assessments require human verification
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ════════════════════════════════════════════
+    // DASHBOARD JAVASCRIPT
+    // ════════════════════════════════════════════
+
+    // ─── CESIUM GLOBE SETUP ───
+    // Using ion-free mode (no API key needed)
+
+    // Disable the default ion access requirement
+    Cesium.Ion.defaultAccessToken = undefined;
+
+    let viewer;
+    try {
+        viewer = new Cesium.Viewer("cesiumContainer", {
+            // Use OpenStreetMap tiles (free, no key needed)
+            imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+                url: "https://tile.openstreetmap.org/",
+            }),
+            baseLayerPicker: false,
+            geocoder: false,
+            homeButton: false,
+            sceneModePicker: false,
+            navigationHelpButton: false,
+            animation: false,
+            timeline: false,
+            fullscreenButton: false,
+            selectionIndicator: true,
+            infoBox: true,
+            requestRenderMode: true,
+        });
+
+        // Dark sky atmosphere
+        viewer.scene.skyAtmosphere.show = true;
+        viewer.scene.globe.enableLighting = true;
+        viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#0a0e17");
+
+        // Start view — looking at India/Asia region
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(80.0, 20.0, 15000000),
+            duration: 0,
+        });
+    } catch (e) {
+        console.error("Cesium init error:", e);
+        document.getElementById("cesiumContainer").innerHTML =
+            '<div style="padding:40px;color:#f85149;">Globe failed to load. ' +
+            'Check internet connection. Error: ' + e.message + '</div>';
+    }
+
+    // ─── DATA LAYER ENTITIES ───
+    // We store references so we can show/hide them
+
+    let aircraftEntities = [];
+    let anomalyEntities = [];
+    let quakeEntities = [];
+    let newsMarkers = [];
+
+    // ─── TOGGLE DATA LAYERS ON/OFF ───
+
+    function toggleLayer(layerName) {
+        let entities = [];
+        if (layerName === "aircraft") entities = aircraftEntities;
+        if (layerName === "anomalies") entities = anomalyEntities;
+        if (layerName === "quakes") entities = quakeEntities;
+        if (layerName === "news") entities = newsMarkers;
+
+        const checkbox = document.getElementById(
+            "layer" + layerName.charAt(0).toUpperCase() + layerName.slice(1)
+        );
+        const show = checkbox ? checkbox.checked : true;
+
+        entities.forEach(function(entity) {
+            entity.show = show;
+        });
+        if (viewer) viewer.scene.requestRender();
+    }
+
+    // ─── PLOT AIRCRAFT ON GLOBE ───
+
+    function plotAircraft(aircraftList) {
+        if (!viewer) return;
+
+        // Remove old aircraft dots
+        aircraftEntities.forEach(function(e) {
+            viewer.entities.remove(e);
+        });
+        aircraftEntities = [];
+
+        // Limit to 2000 for performance
+        var limited = aircraftList.slice(0, 2000);
+
+        limited.forEach(function(ac) {
+            if (!ac.latitude || !ac.longitude) return;
+
+            var color = Cesium.Color.fromCssColorString("#58a6ff").withAlpha(0.7);
+            var size = 3;
+
+            // Highlight anomalies in different colours
+            if (ac.squawk === "7500" || ac.squawk === "7600" || ac.squawk === "7700") {
+                color = Cesium.Color.RED;
+                size = 8;
+            } else if (ac.velocity && ac.velocity > 300) {
+                color = Cesium.Color.ORANGE;
+                size = 5;
+            }
+
+            var entity = viewer.entities.add({
+                position: Cesium.Cartesian3.fromDegrees(
+                    ac.longitude, ac.latitude, (ac.baro_altitude || 0)
+                ),
+                point: { pixelSize: size, color: color },
+                description:
+                    "<table>" +
+                    "<tr><td>Callsign</td><td><b>" + (ac.callsign || "N/A") + "</b></td></tr>" +
+                    "<tr><td>Country</td><td>" + (ac.origin_country || "N/A") + "</td></tr>" +
+                    "<tr><td>Altitude</td><td>" + (ac.baro_altitude || "N/A") + " m</td></tr>" +
+                    "<tr><td>Speed</td><td>" + (ac.velocity ? ac.velocity.toFixed(0) : "N/A") + " m/s</td></tr>" +
+                    "<tr><td>Heading</td><td>" + (ac.true_track ? ac.true_track.toFixed(0) : "N/A") + "°</td></tr>" +
+                    "<tr><td>Squawk</td><td>" + (ac.squawk || "N/A") + "</td></tr>" +
+                    "<tr><td>ICAO24</td><td>" + (ac.icao24 || "N/A") + "</td></tr>" +
+                    "</table>",
+                label: ac.callsign ? {
+                    text: ac.callsign,
+                    font: "10px monospace",
+                    fillColor: Cesium.Color.WHITE.withAlpha(0.6),
+                    style: Cesium.LabelStyle.FILL,
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    pixelOffset: new Cesium.Cartesian2(0, -8),
+                    distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 2000000),
+                } : undefined,
+            });
+
+            aircraftEntities.push(entity);
+        });
+
+        document.getElementById("statAircraft").textContent = aircraftList.length;
+        document.getElementById("countAircraft").textContent = aircraftList.length;
+        viewer.scene.requestRender();
+    }
+
+    // ─── PLOT EARTHQUAKES ON GLOBE ───
+
+    function plotEarthquakes(quakeList) {
+        if (!viewer) return;
+
+        quakeEntities.forEach(function(e) {
+            viewer.entities.remove(e);
+        });
+        quakeEntities = [];
+
+        quakeList.forEach(function(q) {
+            if (!q.latitude || !q.longitude) return;
+
+            var mag = q.magnitude || 0;
+            var radius = Math.max(mag * 50000, 20000);
+            var color = mag >= 5 ? Cesium.Color.RED.withAlpha(0.5) :
+                        mag >= 3 ? Cesium.Color.ORANGE.withAlpha(0.4) :
+                        Cesium.Color.YELLOW.withAlpha(0.3);
+
+            var entity = viewer.entities.add({
+                position: Cesium.Cartesian3.fromDegrees(q.longitude, q.latitude),
+                ellipse: {
+                    semiMajorAxis: radius,
+                    semiMinorAxis: radius,
+                    material: color,
+                    outline: true,
+                    outlineColor: Cesium.Color.RED.withAlpha(0.6),
+                },
+                description:
+                    "<b>Earthquake M" + mag + "</b><br>" +
+                    "Location: " + (q.place || "Unknown") + "<br>" +
+                    "Depth: " + (q.depth_km || "?") + " km<br>" +
+                    "Tsunami: " + (q.tsunami_warning ? "YES" : "No"),
+            });
+
+            quakeEntities.push(entity);
+        });
+
+        document.getElementById("statQuakes").textContent = quakeList.length;
+        document.getElementById("countQuakes").textContent = quakeList.length;
+        viewer.scene.requestRender();
+    }
+
+    // ─── UPDATE THREAT PANEL ───
+
+    function updateThreatPanel(report) {
+        if (!report || !report.scenarios) return;
+
+        // Update threat level banner
+        var level = report.overall_threat_level || "LOW";
+        var banner = document.getElementById("threatBanner");
+        banner.className = "threat-banner threat-" + level;
+        document.getElementById("threatLevel").textContent = level;
+        document.getElementById("roundNum").textContent = report.round || 0;
+
+        // Update scenarios
+        var container = document.getElementById("scenarioList");
+        container.innerHTML = "";
+
+        if (report.scenarios.length === 0) {
+            container.innerHTML =
+                '<div class="scenario-card">' +
+                '<div class="scenario-title">No threats detected</div>' +
+                '<div class="scenario-desc">All monitored domains report normal activity.</div>' +
+                '</div>';
+            return;
+        }
+
+        report.scenarios.forEach(function(scenario, index) {
+            var score = scenario.combined_score || 0;
+            var sLevel = scenario.threat_level || "LOW";
+            var barWidth = Math.max(score * 100, 5);
+
+            var card = document.createElement("div");
+            card.className = "scenario-card";
+            card.innerHTML =
+                '<div class="scenario-rank">SCENARIO #' + (index + 1) + '</div>' +
+                '<div class="scenario-title">' + (scenario.title || "Unknown") + '</div>' +
+                '<div class="scenario-score">' +
+                '  <span class="score-bar score-' + sLevel + '" style="width:' + barWidth + 'px"></span>' +
+                '  ' + (score * 100).toFixed(0) + '% — ' + sLevel +
+                '</div>' +
+                '<div class="scenario-desc">' + (scenario.description || "").substring(0, 200) + '</div>' +
+                (scenario.recommended_action ?
+                    '<div class="scenario-action">' + scenario.recommended_action.substring(0, 150) + '</div>' : '') +
+                (scenario.human_override ?
+                    '<div style="color:#d29922;font-size:11px;margin-top:6px;">HUMAN OVERRIDE: ' +
+                    (scenario.human_notes || '') + '</div>' : '');
+
+            container.appendChild(card);
+        });
+    }
+
+    // ─── FETCH AND UPDATE DATA ───
+
+    function fetchAndUpdate() {
+        // Fetch simulation status
+        fetch("/api/status")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var statusDot = document.getElementById("statusDot");
+                var statusText = document.getElementById("statusText");
+
+                var s = data.simulation_status || "IDLE";
+                if (s === "COMPLETED") {
+                    statusDot.className = "status-dot green";
+                    statusText.textContent = "Simulation Complete";
+                } else if (s === "RUNNING" || s === "PULLING_DATA") {
+                    statusDot.className = "status-dot yellow";
+                    statusText.textContent = s === "PULLING_DATA" ? "Pulling Live Data..." : "Simulation Running...";
+                } else {
+                    statusDot.className = "status-dot yellow";
+                    statusText.textContent = s;
+                }
+            })
+            .catch(function() {
+                document.getElementById("statusDot").className = "status-dot red";
+                document.getElementById("statusText").textContent = "Connection Lost";
+            });
+
+        // Fetch aircraft
+        fetch("/api/aircraft")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.aircraft && data.aircraft.length > 0) {
+                    plotAircraft(data.aircraft);
+                }
+            })
+            .catch(function() {});
+
+        // Fetch earthquakes
+        fetch("/api/earthquakes")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.earthquakes) {
+                    plotEarthquakes(data.earthquakes);
+                }
+            })
+            .catch(function() {});
+
+        // Fetch anomalies count
+        fetch("/api/anomalies")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var count = (data.anomalies || []).length;
+                document.getElementById("statAnomalies").textContent = count;
+                document.getElementById("countAnomalies").textContent = count;
+            })
+            .catch(function() {});
+
+        // Fetch news count
+        fetch("/api/news")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var count = (data.articles || []).length;
+                document.getElementById("statNews").textContent = count;
+                document.getElementById("countNews").textContent = count;
+            })
+            .catch(function() {});
+
+        // Fetch threat report
+        fetch("/api/report")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.scenarios) {
+                    updateThreatPanel(data);
+                }
+            })
+            .catch(function() {});
+
+        // Update timestamp
+        document.getElementById("statTime").textContent =
+            new Date().toLocaleTimeString();
+    }
+
+    // ─── START AUTO-REFRESH ───
+
+    // First fetch immediately
+    fetchAndUpdate();
+
+    // Then every 30 seconds
+    setInterval(fetchAndUpdate, 30000);
+
+    </script>
+</body>
+</html>
