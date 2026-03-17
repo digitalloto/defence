@@ -350,9 +350,11 @@
     let viewer;
     try {
         viewer = new Cesium.Viewer("cesiumContainer", {
-            // Use OpenStreetMap tiles (free, no key needed)
-            imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-                url: "https://tile.openstreetmap.org/",
+            // Use Cesium's built-in Natural Earth imagery
+            // This shows continents, countries, oceans — no API key needed
+            // It comes packaged with CesiumJS so it always works
+            imageryProvider: new Cesium.TileMapServiceImageryProvider({
+                url: Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII"),
             }),
             baseLayerPicker: false,
             geocoder: false,
@@ -369,13 +371,34 @@
 
         // Dark sky atmosphere
         viewer.scene.skyAtmosphere.show = true;
-        viewer.scene.globe.enableLighting = true;
+        viewer.scene.globe.enableLighting = false;  // Keep globe fully lit so land is always visible
         viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#0a0e17");
 
-        // Start view — looking at India/Asia region
+        // Show country borders on the globe
+        viewer.scene.globe.showGroundAtmosphere = true;
+
+        // ─── SLOW DOWN THE GLOBE ───
+        // These settings stop the globe from spinning too fast
+        // when you drag or zoom with mouse/trackpad
+
+        // Reduce how fast the globe spins when you let go after dragging
+        viewer.scene.screenSpaceCameraController.inertiaSpin = 0.3;
+
+        // Reduce how fast zoom coasts after you stop scrolling
+        viewer.scene.screenSpaceCameraController.inertiaZoom = 0.3;
+
+        // Reduce how fast translation coasts
+        viewer.scene.screenSpaceCameraController.inertiaTranslate = 0.3;
+
+        // Set minimum and maximum zoom distances (in metres)
+        // Minimum = 500km above surface, Maximum = 50,000km (sees whole earth)
+        viewer.scene.screenSpaceCameraController.minimumZoomDistance = 500000;
+        viewer.scene.screenSpaceCameraController.maximumZoomDistance = 50000000;
+
+        // Start view — looking at India/Asia region, gentle 3-second fly-in
         viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(80.0, 20.0, 15000000),
-            duration: 0,
+            duration: 3,
         });
     } catch (e) {
         console.error("Cesium init error:", e);
