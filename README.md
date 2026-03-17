@@ -1,71 +1,507 @@
 # AIMCRS APINDRA — Defence Intelligence Engine
 
-**Built by Abheet Prem Manghnani, Founder of AIMCRS**
-**Patent Architecture: Swarm Intelligence + Multi-Source Data Fusion**
+**Built by Abheet Prem Manghnani, Founder of AIMCRS, Chennai India**
+**Patent Architecture: Swarm Intelligence + Multi-Source Data Fusion + Edge Processing + Predictive Simulation**
 
 ---
 
-## What Is This?
-
-This is a defence intelligence prototype that watches the world from multiple angles at the same time and warns you about threats. Think of it like having 8 expert analysts working 24/7, each watching a different domain (air, ground, sea, news, environment), then comparing notes to find patterns no single analyst would catch alone.
-
-It stacks three open source repositories together and adds a defence application layer on top.
-
----
-
-## How It Works — Simple Explanation
-
-### The 5 Layers (Bottom to Top)
+## WHAT IS THIS? (30 Second Read)
 
 ```
-┌─────────────────────────────────────────────┐
-│  LAYER 5: Dashboard                         │  ← What you see (3D globe + threat panel)
-├─────────────────────────────────────────────┤
-│  LAYER 4: AIMCRS Defence Layer              │  ← Your patent layer — fuses all signals
-├─────────────────────────────────────────────┤
-│  LAYER 3: Live Data Feeds                   │  ← Real world data from free APIs
-├─────────────────────────────────────────────┤
-│  LAYER 2: Agent Framework (from MiroFish)   │  ← 8 AI analysts with different roles
-├─────────────────────────────────────────────┤
-│  LAYER 1: Simulation Engine (from OASIS)    │  ← The engine that runs everything
-└─────────────────────────────────────────────┘
+   Imagine 8 expert defence analysts sitting in a room.
+   Each one watches a different part of the world:
+   - one watches the sky (aircraft)
+   - one watches the ground (roads, railways)
+   - one watches the news (global events)
+   - one watches the sea (ships)
+   - one watches the weather and earthquakes
+
+   Then a 6th analyst COMBINES everything they found.
+   A 7th analyst THINKS LIKE THE ENEMY and challenges everyone.
+   An 8th analyst WRITES THE FINAL REPORT.
+
+   This system does that automatically using software agents.
+   It pulls LIVE data from free public sources.
+   It runs 24/7 and updates every 60 seconds.
+   A HUMAN always has the final say.
 ```
-
-### The 8 Agents (Like 8 Expert Analysts)
-
-| # | Agent Name | What It Watches |
-|---|-----------|-----------------|
-| 1 | **Air Domain Watcher** | Aircraft positions, altitude, speed, emergency codes |
-| 2 | **Ground Movement Analyst** | Roads, railways, military ground movement |
-| 3 | **Signals & News Analyst** | Global news, social media, emergency broadcasts |
-| 4 | **Maritime Domain Watcher** | Ship movements, port activity |
-| 5 | **Environmental Monitor** | Earthquakes, weather, fires, disasters |
-| 6 | **Cross-Domain Correlator** | Combines ALL agent findings to spot patterns |
-| 7 | **Red Team Adversary** | Thinks like the enemy — challenges assumptions |
-| 8 | **Report Synthesiser** | Creates the final ranked threat report |
-
-### How A Simulation Runs
-
-1. The engine pulls live data from all free sources (aircraft, earthquakes, news, satellites)
-2. All 8 agents analyse the data based on their role
-3. This runs for 5 rounds — each round, agents build on what others found
-4. The Correlator combines signals: "Air anomaly + military news + earthquake = higher threat"
-5. The Red Team challenges: "Could this be a false alarm? What are we missing?"
-6. The Report Agent ranks the top 5 threats by probability
-7. Everything shows on the dashboard with a threat level (LOW / MEDIUM / HIGH / CRITICAL)
-
-### Human In The Loop (Non-Negotiable)
-
-- The human operator can pause the simulation at any time
-- The human can override any threat score
-- The human can inject new data or dismiss false positives
-- The human can add notes to any scenario
-- **Nothing is automated without human review**
-- Every report says: "All assessments require human verification"
 
 ---
 
-## How To Run It
+## THE BIG PICTURE — How Everything Connects
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│   YOU (THE HUMAN OPERATOR)                                       │
+│   See the dashboard, read the report, make the decision          │
+│                                                                  │
+│   ┌──────────────────────────────────────────────────────────┐   │
+│   │  LAYER 5: 3D GLOBE DASHBOARD                             │   │
+│   │  What you see — globe, threat cards, controls            │   │
+│   │  File: aimcrs/dashboard/index.html                       │   │
+│   │  File: aimcrs/dashboard/server.py                        │   │
+│   └──────────────────────┬───────────────────────────────────┘   │
+│                          │ reads from                             │
+│   ┌──────────────────────▼───────────────────────────────────┐   │
+│   │  LAYER 4: AIMCRS DEFENCE LAYER (Your Patent)             │   │
+│   │  Combines all agent outputs into ranked threat report    │   │
+│   │  File: aimcrs/defence_layer/threat_engine.py             │   │
+│   └──────────────────────┬───────────────────────────────────┘   │
+│                          │ receives from                         │
+│   ┌──────────────────────▼───────────────────────────────────┐   │
+│   │  LAYER 2: AGENT FRAMEWORK (from MiroFish)                │   │
+│   │  8 agents with roles, personalities, memories            │   │
+│   │  File: aimcrs/agents/defence_agent.py                    │   │
+│   └──────────────────────┬───────────────────────────────────┘   │
+│            ┌─────────────┼─────────────┐                         │
+│            │ reads       │ reads       │ reads                   │
+│   ┌────────▼──┐  ┌───────▼──┐  ┌──────▼────┐                    │
+│   │ LAYER 3a  │  │ LAYER 3b │  │ LAYER 3c  │  ...more feeds     │
+│   │ Aircraft  │  │ Quakes   │  │ News      │                    │
+│   │ OpenSky   │  │ USGS     │  │ GDELT     │                    │
+│   └────────┬──┘  └───────┬──┘  └──────┬────┘                    │
+│            │             │             │                          │
+│   ┌────────▼─────────────▼─────────────▼─────────────────────┐   │
+│   │  LAYER 1: SIMULATION ENGINE (from OASIS)                 │   │
+│   │  Runs the rounds, stores everything in database          │   │
+│   │  File: aimcrs/engine/simulation_engine.py                │   │
+│   └──────────────────────────────────────────────────────────┘   │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## HOW EACH FUNCTION WORKS — Step by Step
+
+---
+
+### FUNCTION 1: The Simulation Engine (Layer 1)
+
+**File:** `aimcrs/engine/simulation_engine.py`
+**What it does:** Runs the whole show — like a game engine that ticks every round.
+
+```
+HOW THE SIMULATION RUNS:
+
+  ┌─────────────────────────────────┐
+  │ Step 1: CREATE SIMULATION       │
+  │                                 │
+  │  You press "Start"              │
+  │  System creates a unique ID     │
+  │  Opens the database file        │
+  │  Status = CREATED               │
+  └──────────────┬──────────────────┘
+                 │
+  ┌──────────────▼──────────────────┐
+  │ Step 2: REGISTER AGENTS         │
+  │                                 │
+  │  8 agents are created           │
+  │  Each gets a role and ID        │
+  │  They are loaded into memory    │
+  └──────────────┬──────────────────┘
+                 │
+  ┌──────────────▼──────────────────┐
+  │ Step 3: FEED DATA               │
+  │                                 │
+  │  Live data pulled from APIs     │
+  │  Aircraft, earthquakes, news    │
+  │  Each saved to database         │
+  │  Status = RUNNING               │
+  └──────────────┬──────────────────┘
+                 │
+  ┌──────────────▼──────────────────┐
+  │ Step 4: RUN ROUNDS (x5)        │
+  │                                 │
+  │  Round 1: All 8 agents act      │
+  │  Round 2: Agents see Round 1    │
+  │  Round 3: Patterns emerge       │
+  │  Round 4: Correlations found    │
+  │  Round 5: Final assessments     │
+  │                                 │
+  │  HUMAN CAN PAUSE AFTER          │
+  │  EVERY ROUND                    │
+  └──────────────┬──────────────────┘
+                 │
+  ┌──────────────▼──────────────────┐
+  │ Step 5: GENERATE REPORT         │
+  │                                 │
+  │  All actions scored             │
+  │  Top 5 threats ranked           │
+  │  Report saved to file           │
+  │  Status = COMPLETED             │
+  └─────────────────────────────────┘
+```
+
+**Key Functions Inside:**
+
+| Function | What It Does | When It Runs |
+|----------|-------------|--------------|
+| `create_simulation()` | Starts a new simulation, creates database entry | Once at the start |
+| `register_agents()` | Loads the 8 agents into the engine | Once at the start |
+| `feed_data()` | Puts live data into the system for agents to read | Every 60 seconds |
+| `run_round()` | Runs ONE round — every agent acts once | 5 times per cycle |
+| `run_simulation()` | Runs ALL 5 rounds with human checkpoints | Once per cycle |
+| `pause()` | Stops the simulation so you can review | You press pause |
+| `resume()` | Continues after you've reviewed | You press resume |
+| `stop()` | Ends the simulation completely | You press stop |
+| `override_threat_score()` | YOU change a threat score manually | You decide |
+
+---
+
+### FUNCTION 2: The Defence Agents (Layer 2)
+
+**File:** `aimcrs/agents/defence_agent.py`
+**What it does:** Creates 8 AI analysts, each with a different job.
+
+```
+THE 8 AGENTS AND WHAT THEY DO:
+
+  ┌─────────────────────────────────────────────────────────┐
+  │                 DOMAIN WATCHERS                         │
+  │           (Each watches one area)                       │
+  │                                                         │
+  │  ┌───────────┐ ┌───────────┐ ┌───────────┐             │
+  │  │    AIR    │ │  GROUND   │ │  SIGNALS  │             │
+  │  │  WATCHER  │ │  WATCHER  │ │  WATCHER  │             │
+  │  │           │ │           │ │           │             │
+  │  │ Watches:  │ │ Watches:  │ │ Watches:  │             │
+  │  │ -Aircraft │ │ -Roads    │ │ -News     │             │
+  │  │ -Altitude │ │ -Railways │ │ -Twitter  │             │
+  │  │ -Speed    │ │ -Military │ │ -Alerts   │             │
+  │  │ -Squawks  │ │  movement │ │ -GDELT    │             │
+  │  └─────┬─────┘ └─────┬─────┘ └─────┬─────┘             │
+  │        │              │              │                   │
+  │  ┌─────┴─────┐ ┌─────┴─────┐                           │
+  │  │ MARITIME  │ │   ENVIRO  │                           │
+  │  │  WATCHER  │ │  MONITOR  │                           │
+  │  │           │ │           │                           │
+  │  │ Watches:  │ │ Watches:  │                           │
+  │  │ -Ships    │ │ -Quakes   │                           │
+  │  │ -Ports    │ │ -Weather  │                           │
+  │  │ -AIS data │ │ -Fires    │                           │
+  │  └─────┬─────┘ └─────┬─────┘                           │
+  └────────┼──────────────┼─────────────────────────────────┘
+           │              │
+           ▼              ▼
+  ┌─────────────────────────────────────────────────────────┐
+  │              INTELLIGENCE AGENTS                        │
+  │        (Combine and challenge findings)                 │
+  │                                                         │
+  │  ┌─────────────────────────────────────┐                │
+  │  │         CORRELATOR                  │                │
+  │  │                                     │                │
+  │  │  Sees ALL 5 domain reports          │                │
+  │  │  Asks: "What patterns emerge        │                │
+  │  │  when I combine air + ground        │                │
+  │  │  + signals together?"               │                │
+  │  │                                     │                │
+  │  │  If 3+ domains show threats:        │                │
+  │  │  Score goes UP by 20%              │                │
+  │  │  This is MULTI-SOURCE FUSION        │                │
+  │  └──────────────────┬──────────────────┘                │
+  │                     │                                   │
+  │  ┌──────────────────▼──────────────────┐                │
+  │  │         RED TEAM                    │                │
+  │  │                                     │                │
+  │  │  Thinks like the ENEMY              │                │
+  │  │  Asks: "Could this be a decoy?"     │                │
+  │  │  Asks: "What are we NOT seeing?"    │                │
+  │  │  Finds BLIND SPOTS                  │                │
+  │  │  Challenges every assumption        │                │
+  │  └──────────────────┬──────────────────┘                │
+  │                     │                                   │
+  │  ┌──────────────────▼──────────────────┐                │
+  │  │       REPORT AGENT                  │                │
+  │  │                                     │                │
+  │  │  Takes ALL agent outputs            │                │
+  │  │  Ranks by threat score              │                │
+  │  │  Picks top 5 scenarios              │                │
+  │  │  Labels: LOW/MEDIUM/HIGH/CRITICAL   │                │
+  │  │  Writes the final report            │                │
+  │  └─────────────────────────────────────┘                │
+  └─────────────────────────────────────────────────────────┘
+```
+
+**What Each Agent Checks:**
+
+| Agent | What It Looks For | Score Goes UP When |
+|-------|------------------|--------------------|
+| Air Watcher | Emergency squawk codes (7500=hijack, 7700=emergency) | Squawk 7500/7600/7700 detected |
+| Air Watcher | Very low altitude (under 300m, not on ground) | Aircraft flying dangerously low |
+| Air Watcher | Very high speed (over 300 m/s = military jet speed) | Fast military-type aircraft spotted |
+| Signals Watcher | Keywords: "military", "attack", "missile", "border", "troops" | More keywords found = higher score |
+| Environment Monitor | Earthquake magnitude 5.0+ | Large earthquake near strategic area |
+| Correlator | Multiple domains showing threats at the same time | 3+ domains elevated = +20% boost |
+| Red Team | Missing data sources (blind spots) | Data is missing = warning raised |
+
+---
+
+### FUNCTION 3: Live Data Feeds (Layer 3)
+
+**File:** `aimcrs/data_feeds/opensky_feed.py` and `aimcrs/data_feeds/other_feeds.py`
+
+```
+WHERE THE DATA COMES FROM:
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │                    THE REAL WORLD                            │
+  └───┬────────┬──────────┬──────────┬───────────┬──────────────┘
+      │        │          │          │           │
+      ▼        ▼          ▼          ▼           ▼
+  ┌────────┐┌────────┐┌────────┐┌────────┐┌──────────┐
+  │OpenSky ││  USGS  ││ GDELT  ││Celestrk││NASA FIRMS│
+  │Network ││        ││Project ││        ││          │
+  │        ││        ││        ││        ││          │
+  │Aircraft││Quakes  ││News    ││Satelli-││Fires     │
+  │tracking││world-  ││events  ││te data ││worldwide │
+  │live    ││wide    ││100+    ││orbits  ││          │
+  │        ││        ││languag.││        ││          │
+  │FREE    ││FREE    ││FREE    ││FREE    ││FREE*     │
+  │No key  ││No key  ││No key  ││No key  ││Need key  │
+  └───┬────┘└───┬────┘└───┬────┘└───┬────┘└────┬─────┘
+      │         │         │         │          │
+      └─────────┴─────┬───┴─────────┴──────────┘
+                      │
+                      ▼
+           ┌─────────────────────┐
+           │   DataCollector     │
+           │                     │
+           │ Pulls from ALL      │
+           │ sources at once     │
+           │ Returns one big     │
+           │ dictionary          │
+           └──────────┬──────────┘
+                      │
+                      ▼
+              Into the Engine
+              (agents read it)
+```
+
+**OpenSky Aircraft Feed — What You Get Per Aircraft:**
+
+```
+  ┌──────────────────────────────────────────┐
+  │  ONE AIRCRAFT DATA PACKET                │
+  │                                          │
+  │  icao24:        "abc123"  (unique ID)    │
+  │  callsign:      "AI302"   (flight name)  │
+  │  origin_country: "India"                 │
+  │  latitude:       13.08                   │
+  │  longitude:      80.27                   │
+  │  baro_altitude:  10000 m                 │
+  │  velocity:       250 m/s                 │
+  │  true_track:     45 degrees (heading)    │
+  │  vertical_rate:  0 m/s                   │
+  │  on_ground:      false                   │
+  │  squawk:         "1200" (normal)         │
+  │                                          │
+  │  ANOMALY FLAGS:                          │
+  │  squawk "7500" = HIJACK                  │
+  │  squawk "7600" = RADIO FAILURE           │
+  │  squawk "7700" = EMERGENCY               │
+  │  altitude < 300m = DANGEROUSLY LOW       │
+  │  velocity > 300 m/s = POSSIBLE MILITARY  │
+  │  no callsign = UNIDENTIFIED              │
+  └──────────────────────────────────────────┘
+```
+
+**Data Source Summary:**
+
+| Source | Data | Cost | API Key? | Rate Limit |
+|--------|------|------|----------|------------|
+| OpenSky Network | Aircraft positions live | FREE | No (optional) | 1 per 10 sec |
+| USGS Earthquake | Earthquakes last hour | FREE | No | Unlimited |
+| GDELT Project | News events 100+ languages | FREE | No | Unlimited |
+| Celestrak | Satellite orbits | FREE | No | Unlimited |
+| OpenWeatherMap | Weather alerts | FREE | Yes (free signup) | 60/minute |
+| NASA FIRMS | Active fires/disasters | FREE | Yes (free signup) | Unlimited |
+
+---
+
+### FUNCTION 4: Threat Fusion Engine (Layer 4)
+
+**File:** `aimcrs/defence_layer/threat_engine.py`
+**What it does:** This is YOUR patent layer. Combines all signals into ranked threats.
+
+```
+HOW THREAT SCORING WORKS:
+
+  SINGLE DOMAIN THREAT:
+  ─────────────────────────────────────────────
+  Air Watch finds emergency squawk
+  Score = 0.80 (HIGH)
+
+  SINGLE DOMAIN THREAT:
+  ─────────────────────────────────────────────
+  Signals Watch finds "military border" news
+  Score = 0.50 (MEDIUM)
+
+  SINGLE DOMAIN THREAT:
+  ─────────────────────────────────────────────
+  Environment finds M5.2 earthquake
+  Score = 0.56 (MEDIUM)
+
+
+  MULTI-DOMAIN CORRELATION (the magic):
+  ═════════════════════════════════════════════
+
+  Air anomaly (0.80)  ─────┐
+                           │
+  Military news (0.50) ────┤──► CORRELATOR combines
+                           │    Average = 0.62
+  Earthquake (0.56) ───────┘    + 0.20 bonus for 3 domains
+                                = 0.82 (HIGH)
+
+  ═════════════════════════════════════════════
+
+  WHY THE BONUS?
+  3 things happening at the same time in
+  different domains is MORE suspicious than
+  any one thing alone. The bonus reflects
+  that combined signals are more significant.
+```
+
+```
+THREAT LEVELS:
+
+  0.0 ──────── 0.4 ──────── 0.7 ──────── 0.9 ──────── 1.0
+  │             │             │             │             │
+  │    LOW      │   MEDIUM    │    HIGH     │  CRITICAL   │
+  │   Green     │   Yellow    │   Orange    │    Red      │
+  │             │             │             │  Flashing   │
+  │ No action   │  Monitor    │  Alert      │ IMMEDIATE   │
+  │ needed      │  closely    │  command    │  ACTION     │
+```
+
+```
+HUMAN OVERRIDE — YOU ALWAYS HAVE THE FINAL SAY:
+
+  System says: "CRITICAL — 0.92"
+       │
+       ▼
+  You review it
+       │
+       ├──► "I agree" ──► Keep score as is
+       │
+       ├──► "Too high, this is a false alarm"
+       │    ──► You set score to 0.0 (DISMISSED)
+       │
+       ├──► "Too low, I have extra intel"
+       │    ──► You set score to 0.95 (CRITICAL)
+       │
+       └──► "Add a note" ──► Your note saved with the report
+```
+
+---
+
+### FUNCTION 5: The 3D Globe Dashboard (Layer 5)
+
+**File:** `aimcrs/dashboard/index.html` and `aimcrs/dashboard/server.py`
+
+```
+WHAT YOU SEE ON SCREEN:
+
+  ┌────────────────────────────────────┬──────────────────────┐
+  │                                    │  AIMCRS APINDRA      │
+  │                                    │  Status: Running     │
+  │         3D GLOBE                   │  Round: 3            │
+  │                                    │                      │
+  │    Blue dots = aircraft            │  THREAT: HIGH        │
+  │    Red dots = emergencies          │  ████████████ 82%    │
+  │    Orange circles = earthquakes    │                      │
+  │                                    │  GLOBE CONTROLS      │
+  │    Click any dot for details       │  [Spin] ====o====    │
+  │    Drag to rotate                  │  [Zoom] ====o====    │
+  │    Scroll to zoom                  │  [Pan]  ====o====    │
+  │                                    │  [Auto-Rotate] OFF   │
+  │                                    │  [Fly To] Chennai    │
+  │                                    │                      │
+  │  Lat: 13.08 | Lon: 80.27          │  DATA LAYERS         │
+  │  Alt: 2000 km                      │  [x] Aircraft   432  │
+  │                                    │  [x] Anomalies   3   │
+  │                                    │  [x] Earthquakes 7   │
+  │                                    │  [x] News        10  │
+  │                                    │                      │
+  │                                    │  THREAT SCENARIOS    │
+  │                                    │  1. Multi-Domain     │
+  │                                    │  2. Air Watch Alert  │
+  │                                    │  3. Signals Alert    │
+  │                                    │                      │
+  │                                    │  AGENT STATUS        │
+  │                                    │  1. Air Watcher  ON  │
+  │                                    │  2. Ground Watch ON  │
+  │                                    │  ... (8 agents)      │
+  └────────────────────────────────────┴──────────────────────┘
+```
+
+**Dashboard Controls — Everything Is Editable:**
+
+| Control | What It Does | How To Use |
+|---------|-------------|------------|
+| Spin Speed slider | How fast globe coasts after you drag it | Drag left = slower, right = faster |
+| Zoom Speed slider | How fast zoom coasts after you scroll | Drag left = slower, right = faster |
+| Pan Speed slider | How fast globe moves after you pan | Drag left = slower, right = faster |
+| Auto-Rotate checkbox | Globe spins by itself hands-free | Check = ON, uncheck = OFF |
+| Rotate Speed slider | How fast auto-rotation goes | Only works when auto-rotate is ON |
+| Atmosphere checkbox | Show/hide the blue glow around Earth | Check = show, uncheck = hide |
+| Day/Night checkbox | Show sunlit side vs dark side | Check = realistic lighting |
+| Fly To buttons | Jump camera to a city or region | Click any button = 2 second fly |
+| Custom Lat/Lon | Type any coordinates and fly there | Enter numbers, click Go |
+| Aircraft dots slider | Change the size of aircraft dots | Drag to make bigger or smaller |
+| Anomaly dots slider | Change the size of anomaly dots | Drag to make bigger or smaller |
+| Refresh interval slider | How often data updates (5-120 sec) | Drag to change timing |
+| Refresh Now button | Pull new data immediately | Click = instant refresh |
+| Data layer checkboxes | Show/hide each type of data | Uncheck = hidden from globe |
+| Section headers | Collapse/expand each panel section | Click the header to toggle |
+
+---
+
+### FUNCTION 6: How The 3 Open Source Repos Connect
+
+```
+THE THREE REPOS AND WHAT WE TOOK FROM EACH:
+
+
+  REPO 1: OASIS (camel-ai/oasis)
+  ═══════════════════════════════════
+  What it is:   Social media simulator (Twitter/Reddit)
+                Scales to 1 MILLION agents
+  What we took: - Async round-based simulation loop
+                - SQLite database storage pattern
+                - Concurrent agent execution model
+                - Channel-based agent communication
+  What we       Replaced "tweet" and "like" actions
+  changed:      with "ANALYSE", "ALERT", "CORRELATE"
+                Replaced social personas with defence roles
+
+
+  REPO 2: MiroFish (666ghj/MiroFish)
+  ═══════════════════════════════════
+  What it is:   Swarm intelligence for financial predictions
+                Spawns thousands of agents with personalities
+  What we took: - Agent profile system (role + personality)
+                - Memory system (agents remember past rounds)
+                - ReportAgent pattern (synthesise everything)
+                - ReACT pattern (Think, Act, Observe, Repeat)
+  What we       Replaced financial analysis with
+  changed:      defence threat analysis
+
+
+  REPO 3: OpenSky API (openskynetwork/opensky-api)
+  ═══════════════════════════════════
+  What it is:   Python wrapper for live aircraft tracking
+  What we took: - The concept of real-time state vectors
+                - Understanding of ADS-B data format
+  What we       Built our own feed class with
+  built:        anomaly detection (squawks, altitude,
+                speed, missing callsigns)
+```
+
+---
+
+## HOW TO RUN IT
 
 ### Step 1 — Install (One Time Only)
 
@@ -76,164 +512,159 @@ git checkout claude/setup-technical-cobuilder-AXQZR
 pip3 install -r requirements.txt
 ```
 
-The only package needed is `requests` (for calling APIs). Python 3.10+ required.
+Only needs `requests` package. Python 3.10 or higher required.
 
-### Step 2 — Run The Text Simulation
+### Step 2 — Run Text Simulation (No Browser Needed)
 
 ```bash
-cd /path/to/defence
 python3 -m aimcrs.run
 ```
 
-This runs the full simulation in your terminal and prints the threat report. No browser needed.
+This prints the full threat report to your terminal.
 
-### Step 3 — Run The 3D Globe Dashboard
+### Step 3 — Run 3D Globe Dashboard
 
 ```bash
-cd /path/to/defence
 python3 -m aimcrs.dashboard.server
 ```
 
-Then open your browser and go to: **http://localhost:8080**
+Open browser: **http://localhost:8080**
 
-You will see:
-- A 3D globe showing the Earth with land masses and oceans
-- Blue dots for aircraft currently in the sky
-- Red/orange circles for earthquakes
-- A right panel with the top 5 threat scenarios ranked
-- A threat level banner (LOW = green, MEDIUM = yellow, HIGH = orange, CRITICAL = red)
-- Toggle switches to show/hide each data layer
-- Auto-refreshes every 30 seconds
-
-### Step 4 — Deploy On Replit (Free, No Install)
+### Step 4 — Deploy Free on Replit
 
 1. Go to https://replit.com
 2. Click "Create Repl" then "Import from GitHub"
 3. Paste: `https://github.com/digitalloto/defence`
-4. Set branch to: `claude/setup-technical-cobuilder-AXQZR`
-5. Set run command to: `python3 -m aimcrs.dashboard.server`
-6. Click Run — you get a public URL you can share with anyone
+4. Set branch: `claude/setup-technical-cobuilder-AXQZR`
+5. Run command: `python3 -m aimcrs.dashboard.server`
+6. Click Run — get a public URL you can share
 
 ---
 
-## Data Sources
+## APINDRA PATENT COVERAGE
 
-### Free Sources (No API Key Needed)
+```
+  PILLAR 1: SWARM INTELLIGENCE
+  ═════════════════════════════════
+  8 agents with independent roles
+  Each has its own memory
+  They build on each other's findings
+  Emergent patterns appear that no
+  single agent would find alone
 
-| Source | What It Provides | Rate Limit |
-|--------|-----------------|------------|
-| **OpenSky Network** | Live aircraft positions worldwide | 1 request per 10 seconds |
-| **USGS Earthquake** | Earthquakes from the last hour | No limit |
-| **GDELT Project** | Global news events in 100+ languages | No limit |
-| **Celestrak** | Satellite orbital data | No limit |
+  PILLAR 2: MULTI-SOURCE DATA FUSION
+  ═════════════════════════════════
+  Air + Ground + Maritime + Signals
+  + Environment = Unified picture
+  Correlator combines ALL signals
+  Multi-domain bonus scoring
 
-### Free Sources (Free API Key Needed — Sign Up)
+  PILLAR 3: EDGE PROCESSING
+  ═════════════════════════════════
+  Runs on YOUR laptop
+  SQLite database (local file)
+  No cloud dependency
+  No internet needed for engine
+  (only for live data feeds)
 
-| Source | What It Provides | Sign Up Link |
-|--------|-----------------|-------------|
-| **OpenWeatherMap** | Weather data | https://openweathermap.org/api |
-| **NASA FIRMS** | Active fire/disaster data | https://urs.earthdata.nasa.gov |
-| **OpenSky (authenticated)** | Faster aircraft data | https://opensky-network.org |
-
-### Paid Sources (NOT Used Unless You Approve)
-
-- ADS-B Exchange (RapidAPI paid plan)
-- MarineTraffic (paid API)
-- VesselFinder (paid API)
-- Twitter/X full API (paid)
+  PILLAR 4: PREDICTIVE SIMULATION
+  ═════════════════════════════════
+  5 rounds of simulation
+  Agents model "what if" scenarios
+  Each round builds on the last
+  Combined scenarios scored
+  Top 5 predictions ranked
+```
 
 ---
 
-## File Structure
+## FILE STRUCTURE
 
 ```
 defence/
-├── aimcrs/                          ← All the code lives here
+│
+├── aimcrs/                            All code lives here
+│   │
 │   ├── config/
-│   │   └── settings.py              ← All settings, API keys, thresholds
+│   │   └── settings.py                All settings, API keys, timing
+│   │
 │   ├── engine/
-│   │   └── simulation_engine.py     ← Layer 1: The simulation loop + database
+│   │   └── simulation_engine.py       LAYER 1: The game engine
+│   │                                  Creates simulations
+│   │                                  Runs rounds
+│   │                                  Stores to database
+│   │
 │   ├── agents/
-│   │   └── defence_agent.py         ← Layer 2: All 8 agent types
+│   │   └── defence_agent.py           LAYER 2: The 8 agents
+│   │                                  Air, Ground, Signals, Maritime
+│   │                                  Environment, Correlator
+│   │                                  Red Team, Report Agent
+│   │
 │   ├── data_feeds/
-│   │   ├── opensky_feed.py          ← Layer 3: Live aircraft data
-│   │   └── other_feeds.py           ← Layer 3: Earthquakes, news, satellites, weather, fires
+│   │   ├── opensky_feed.py            LAYER 3: Live aircraft data
+│   │   │                              Anomaly detection built in
+│   │   │
+│   │   └── other_feeds.py             LAYER 3: All other feeds
+│   │                                  USGS, GDELT, Celestrak
+│   │                                  Weather, NASA fires
+│   │
 │   ├── defence_layer/
-│   │   └── threat_engine.py         ← Layer 4: Threat scoring + report generation
+│   │   └── threat_engine.py           LAYER 4: YOUR patent layer
+│   │                                  Multi-source fusion
+│   │                                  Threat scoring
+│   │                                  Report generation
+│   │                                  Human override
+│   │
 │   ├── dashboard/
-│   │   ├── server.py                ← Layer 5: Web server for the dashboard
-│   │   └── index.html               ← Layer 5: 3D globe + threat panel UI
-│   ├── run.py                       ← Run the text simulation
-│   ├── __main__.py                  ← Entry point for python3 -m aimcrs
+│   │   ├── server.py                  LAYER 5: Web server
+│   │   │                              Serves the dashboard page
+│   │   │                              API endpoints for data
+│   │   │
+│   │   └── index.html                 LAYER 5: The dashboard
+│   │                                  3D globe (CesiumJS)
+│   │                                  Globe controls
+│   │                                  Threat panel
+│   │                                  Layer toggles
+│   │
+│   ├── run.py                         Runs text simulation
+│   ├── __main__.py                    Entry point
 │   └── __init__.py
-├── vendors/                         ← Cloned source repos (not in git)
-│   ├── oasis/                       ← OASIS by CAMEL-AI
-│   ├── MiroFish/                    ← MiroFish swarm engine
-│   └── opensky-api/                 ← OpenSky Python API
-├── requirements.txt                 ← Dependencies (just requests)
+│
+├── requirements.txt                   Just "requests" package
 ├── .gitignore
-└── README.md                        ← This file
+└── README.md                          This file
 ```
 
 ---
 
-## How The Three Repos Are Used
-
-### OASIS (camel-ai/oasis)
-- **What it is**: Simulation engine that can scale to 1 million agents
-- **What we took**: The async agent execution model, round-based simulation loop, SQLite database storage, concurrent agent communication
-- **What we changed**: Replaced social media simulation with defence threat simulation
-
-### MiroFish (666ghj/MiroFish)
-- **What it is**: Swarm intelligence framework with agent personalities and memories
-- **What we took**: Agent profiles with roles and personalities, memory system, report synthesis pattern
-- **What we changed**: Replaced financial prediction agents with defence domain agents
-
-### OpenSky API (openskynetwork/opensky-api)
-- **What it is**: Python API for live aircraft tracking
-- **What we took**: The concept of pulling real-time aircraft state vectors
-- **What we built**: Our own feed class with anomaly detection (emergency squawks, low altitude, high speed, missing callsigns)
-
----
-
-## APINDRA Patent Coverage
-
-This prototype demonstrates all four pillars of the APINDRA architecture:
-
-1. **Swarm Intelligence**: 8 agents with independent roles and memories produce emergent patterns no single agent would find
-2. **Multi-Source Data Fusion**: Air + ground + maritime + signals + environment combined into unified threat picture
-3. **Edge Processing**: Runs entirely on a local machine with SQLite — no cloud dependency
-4. **Predictive Simulation**: Agents model scenarios across multiple rounds, building on each other's findings
-
----
-
-## Limitations and Risks
+## WARNINGS AND LIMITATIONS
 
 - This is a PROTOTYPE — not production-ready
-- Rule-based agents (no LLM/AI API needed) — less intelligent but always works
-- Free API rate limits mean data refreshes every 60 seconds, not real-time
+- Rule-based agents (no AI API key needed) — less intelligent but always works
+- Free API rate limits mean data refreshes every 60 seconds, not truly real-time
 - No maritime data in prototype (VesselFinder and MarineTraffic are paid)
 - No Twitter/X data (full API is paid)
-- The dashboard needs internet to load the globe map tiles
-- All threat scores are estimates — human verification is always required
+- Dashboard needs internet to load the CesiumJS globe library
+- All threat scores are estimates — HUMAN verification is always required
 - This system does NOT make decisions — it provides intelligence for humans to act on
+- The 3D globe uses Cesium's built-in NaturalEarthII map (lower resolution than Google Maps, but FREE and no API key)
 
 ---
 
-## Next Steps (Build Order)
+## NEXT STEPS
 
-1. Get the prototype running locally with flight data
+1. Get prototype running locally with flight data
 2. Add one data layer at a time — test before adding next
 3. Add LLM-powered agents (requires OpenAI or Anthropic API key)
 4. Add maritime data when budget allows
-5. Scale to more agents per domain (3-5 per role instead of 1)
-6. Add historical pattern matching (compare today vs past data)
+5. Scale to more agents per domain (3-5 per role)
+6. Add historical pattern matching
 7. Add alert notifications (email, SMS, webhook)
 8. Deploy to cloud for always-on monitoring
 
 ---
 
-## Contact
+## CONTACT
 
 **Abheet Prem Manghnani**
 Founder, AIMCRS
