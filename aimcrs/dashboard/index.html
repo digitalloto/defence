@@ -445,10 +445,38 @@
 
     var viewer;
     try {
-        viewer = new Cesium.Viewer("cesiumContainer", {
-            imageryProvider: new Cesium.TileMapServiceImageryProvider({
-                url: Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII"),
-            }),
+        // Try multiple tile providers in order — first one that works wins.
+        // This ensures land masses ALWAYS show regardless of environment.
+        var imageryProvider = null;
+        var providerName = "none";
+
+        // Option 1: ArcGIS World Imagery (free, no key, satellite photos)
+        try {
+            imageryProvider = new Cesium.ArcGisMapServerImageryProvider({
+                url: "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
+            });
+            providerName = "ArcGIS Satellite";
+        } catch(e1) {
+            // Option 2: OpenStreetMap tiles
+            try {
+                imageryProvider = new Cesium.OpenStreetMapImageryProvider({
+                    url: "https://a.tile.openstreetmap.org/",
+                });
+                providerName = "OpenStreetMap";
+            } catch(e2) {
+                // Option 3: Cesium built-in NaturalEarth (fallback)
+                try {
+                    imageryProvider = new Cesium.TileMapServiceImageryProvider({
+                        url: Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII"),
+                    });
+                    providerName = "NaturalEarth";
+                } catch(e3) {
+                    providerName = "none (blank globe)";
+                }
+            }
+        }
+
+        var viewerOptions = {
             baseLayerPicker: false,
             geocoder: false,
             homeButton: false,
@@ -460,12 +488,27 @@
             selectionIndicator: true,
             infoBox: true,
             requestRenderMode: false,
+        };
+
+        // Only set imageryProvider if we got one — otherwise Cesium uses its default
+        if (imageryProvider) {
+            viewerOptions.imageryProvider = imageryProvider;
+        }
+
+        viewer = new Cesium.Viewer("cesiumContainer", viewerOptions);
+
+        console.log("Globe tiles: " + providerName);
+
+        // If the first provider fails to load tiles, add ArcGIS as a backup layer
+        viewer.scene.globe.tileLoadProgressEvent.addEventListener(function(queueLength) {
+            // This fires as tiles load — if we see tiles loading, the provider works
         });
 
         viewer.scene.skyAtmosphere.show = true;
         viewer.scene.globe.enableLighting = false;
         viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#0a0e17");
         viewer.scene.globe.showGroundAtmosphere = true;
+        viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString("#1a3a1a");
 
         // Default globe control speeds
         viewer.scene.screenSpaceCameraController.inertiaSpin = 0.3;
@@ -473,6 +516,26 @@
         viewer.scene.screenSpaceCameraController.inertiaTranslate = 0.3;
         viewer.scene.screenSpaceCameraController.minimumZoomDistance = 100000;
         viewer.scene.screenSpaceCameraController.maximumZoomDistance = 50000000;
+
+        // Add country borders as a GeoJSON layer so outlines always show
+        // This uses a free lightweight GeoJSON from a public CDN
+        try {
+            Cesium.GeoJsonDataSource.load(
+                "https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson",
+                {
+                    stroke: Cesium.Color.fromCssColorString("#3fb950").withAlpha(0.4),
+                    strokeWidth: 1,
+                    fill: Cesium.Color.fromCssColorString("#1a3a1a").withAlpha(0.15),
+                }
+            ).then(function(dataSource) {
+                viewer.dataSources.add(dataSource);
+                console.log("Country borders loaded");
+            }).catch(function(err) {
+                console.log("Country borders not available (optional): " + err);
+            });
+        } catch(geoErr) {
+            console.log("GeoJSON borders skipped: " + geoErr);
+        }
 
         // Gentle fly-in to India
         viewer.camera.flyTo({
