@@ -2,7 +2,7 @@ run = "cd aimcrs-india-traffic-dataset && python scripts/dashboard.py"
 entrypoint = "aimcrs-india-traffic-dataset/scripts/dashboard.py"
 
 [nix]
-channel = "stable-24_05"
+channel = "stable-24_11"
 
 [env]
 PYTHONPATH = "/home/runner/${REPL_SLUG}"
