@@ -29,7 +29,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 try:
-    from flask import Flask, render_template_string
+    from flask import Flask, render_template_string, send_from_directory
 except ImportError:
     print("ERROR: Flask is not installed.")
     print("Fix: pip install flask")
@@ -41,7 +41,19 @@ except ImportError:
     print("ERROR: loguru is not installed. Fix: pip install loguru")
     sys.exit(1)
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder=str(PROJECT_ROOT / "templates"),
+    static_folder=str(PROJECT_ROOT / "static"),
+)
+
+# Register God Mode admin blueprint
+try:
+    from admin.routes import admin_bp
+    app.register_blueprint(admin_bp)
+    logger.info("God Mode admin panel loaded")
+except ImportError as e:
+    print(f"Warning: Admin panel not loaded: {e}")
 
 # ----- PATHS -----
 RAW_DIR = PROJECT_ROOT / "raw"
@@ -318,6 +330,10 @@ DASHBOARD_HTML = """
         <h1>AIMCRS India Traffic Dataset</h1>
         <p>AI-Powered Emergency Vehicle Green Corridor System</p>
         <p class="patent">Patent Pending: IN202541120892 | Abheet Prem Manghnani</p>
+        <div style="margin-top: 15px; display: flex; gap: 12px; justify-content: center;">
+            <a href="/admin" style="background: #e74c3c; color: #fff; padding: 8px 20px; border-radius: 5px; text-decoration: none; font-size: 13px; font-weight: bold; letter-spacing: 1px;">GOD MODE</a>
+            <a href="/simulation" style="background: #4ecdc4; color: #000; padding: 8px 20px; border-radius: 5px; text-decoration: none; font-size: 13px; font-weight: bold; letter-spacing: 1px;">SIMULATION</a>
+        </div>
     </div>
 
     <!-- Main Counters -->
@@ -499,6 +515,20 @@ def api_stats():
     # Convert Path objects to strings for JSON
     stats["cities"] = dict(stats.get("cities", {}))
     return json.dumps(stats, indent=2, default=str)
+
+
+@app.route("/admin")
+def admin_page():
+    """God Mode — Admin Command Centre."""
+    from flask import render_template
+    return render_template("admin.html")
+
+
+@app.route("/simulation")
+def simulation_page():
+    """Interactive Traffic & Green Corridor Simulation."""
+    from flask import render_template
+    return render_template("simulation.html")
 
 
 def main():
