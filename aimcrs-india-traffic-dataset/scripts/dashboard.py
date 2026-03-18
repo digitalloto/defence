@@ -26,7 +26,9 @@ from datetime import datetime
 from collections import defaultdict
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+SCRIPTS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(SCRIPTS_DIR))
 
 try:
     from flask import Flask, render_template_string, send_from_directory
