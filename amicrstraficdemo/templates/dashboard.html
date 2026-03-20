@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIMCRS India Traffic Dataset — Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a1a;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #1a1a3e 0%, #0d0d2b 100%);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #2a2a5e;
+        }
+        .header h1 { color: #ff4444; font-size: 28px; }
+        .header p { color: #888; margin-top: 8px; }
+        .patent { color: #666; font-size: 12px; margin-top: 10px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #1a1a2e;
+            border: 1px solid #2a2a5e;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        .card h3 { color: #888; font-size: 12px; text-transform: uppercase; }
+        .card .number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #4ecdc4;
+            margin: 10px 0;
+        }
+        .card .number.ambulance { color: #ff4444; }
+        .card .number.highlight { color: #ffd700; }
+
+        .section {
+            background: #1a1a2e;
+            border: 1px solid #2a2a5e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            color: #4ecdc4;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px 15px;
+            text-align: left;
+            border-bottom: 1px solid #2a2a5e;
+        }
+        th { color: #888; font-size: 12px; text-transform: uppercase; }
+        td { color: #e0e0e0; }
+
+        .status-trained { color: #4ecdc4; }
+        .status-pending { color: #ffd700; }
+
+        .bar {
+            height: 20px;
+            background: #2a2a5e;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecdc4, #44bbaa);
+            border-radius: 10px;
+        }
+
+        .city-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .city-card {
+            background: #0d0d2b;
+            border: 1px solid #2a2a5e;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .city-card h4 { color: #4ecdc4; }
+        .city-card .count { font-size: 24px; color: #ffd700; }
+
+        .nav-btns {
+            margin-top: 15px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .nav-btns a {
+            padding: 8px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .btn-god { background: #e74c3c; color: #fff; }
+        .btn-sim { background: #4ecdc4; color: #000; }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AIMCRS India Traffic Dataset</h1>
+        <p>AI-Powered Emergency Vehicle Green Corridor System</p>
+        <p class="patent">Patent Pending: IN202541120892 | Abheet Prem Manghnani</p>
+        <div class="nav-btns">
+            <a href="/admin" class="btn-god">GOD MODE</a>
+            <a href="/simulation" class="btn-sim">SIMULATION</a>
+        </div>
+    </div>
+
+    <!-- Main Counters -->
+    <div class="grid">
+        <div class="card">
+            <h3>Total Images</h3>
+            <div class="number highlight">{{ stats.total_images }}</div>
+        </div>
+        <div class="card">
+            <h3>Videos Downloaded</h3>
+            <div class="number">{{ stats.total_videos }}</div>
+        </div>
+        <div class="card">
+            <h3>Labelled Images</h3>
+            <div class="number">{{ stats.labelled_images }}</div>
+        </div>
+        <div class="card">
+            <h3>Ambulance Images</h3>
+            <div class="number ambulance">{{ stats.ambulance_images }}</div>
+        </div>
+        <div class="card">
+            <h3>Augmented Images</h3>
+            <div class="number">{{ stats.augmented_images }}</div>
+        </div>
+        <div class="card">
+            <h3>Cities Covered</h3>
+            <div class="number">{{ stats.cities | length }}</div>
+        </div>
+    </div>
+
+    <!-- Data Source Breakdown -->
+    <div class="section">
+        <h2>Data Sources</h2>
+        <table>
+            <tr><th>Source</th><th>Files</th><th>Coverage</th></tr>
+            <tr>
+                <td>YouTube Traffic Videos</td>
+                <td>{{ stats.youtube_videos }}</td>
+                <td><div class="bar"><div class="bar-fill" style="width: {{ [stats.youtube_videos * 2, 100] | min }}%"></div></div></td>
+            </tr>
+            <tr>
+                <td>Government Open Data</td>
+                <td>{{ stats.government_files }}</td>
+                <td><div class="bar"><div class="bar-fill" style="width: {{ [stats.government_files * 5, 100] | min }}%"></div></div></td>
+            </tr>
+            <tr>
+                <td>Academic Datasets</td>
+                <td>{{ stats.academic_files }}</td>
+                <td><div class="bar"><div class="bar-fill" style="width: {{ [stats.academic_files * 2, 100] | min }}%"></div></div></td>
+            </tr>
+            <tr>
+                <td>Kaggle Datasets</td>
+                <td>{{ stats.kaggle_files }}</td>
+                <td><div class="bar"><div class="bar-fill" style="width: {{ [stats.kaggle_files * 2, 100] | min }}%"></div></div></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Training Dataset -->
+    <div class="section">
+        <h2>Training Dataset Split</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Training (80%)</h3>
+                <div class="number">{{ stats.train_images }}</div>
+            </div>
+            <div class="card">
+                <h3>Validation (10%)</h3>
+                <div class="number">{{ stats.val_images }}</div>
+            </div>
+            <div class="card">
+                <h3>Test (10%)</h3>
+                <div class="number">{{ stats.test_images }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- City Coverage -->
+    <div class="section">
+        <h2>City Coverage</h2>
+        <div class="city-grid">
+            {% for city, count in stats.cities.items() %}
+            <div class="city-card">
+                <h4>{{ city }}</h4>
+                <div class="count">{{ count }}</div>
+                <small>files</small>
+            </div>
+            {% endfor %}
+            {% if not stats.cities %}
+            <p style="color: #888;">No city data yet. Run the YouTube downloader first.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Model Performance -->
+    <div class="section">
+        <h2>Model Performance</h2>
+        <table>
+            <tr><th>Model</th><th>Status</th><th>Accuracy</th></tr>
+            {% for model in stats.models %}
+            <tr>
+                <td>{{ model.name }}</td>
+                <td>
+                    {% if model.trained %}
+                    <span class="status-trained">Trained</span>
+                    {% else %}
+                    <span class="status-pending">Not yet trained</span>
+                    {% endif %}
+                </td>
+                <td>{{ model.accuracy }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- Vehicle Types -->
+    <div class="section">
+        <h2>Vehicle Types AIMCRS Detects</h2>
+        <table>
+            <tr><th>ID</th><th>Type</th><th>Priority</th></tr>
+            <tr><td>5</td><td style="color: #ff4444; font-weight: bold;">Ambulance</td><td style="color: #ff4444;">HIGHEST</td></tr>
+            <tr><td>0</td><td>Car</td><td>Standard</td></tr>
+            <tr><td>1</td><td>Motorcycle / Two Wheeler</td><td>Standard</td></tr>
+            <tr><td>2</td><td>Auto Rickshaw</td><td>India-specific</td></tr>
+            <tr><td>3</td><td>Bus</td><td>Standard</td></tr>
+            <tr><td>4</td><td>Truck</td><td>Standard</td></tr>
+            <tr><td>6</td><td>Pedestrian</td><td>Safety</td></tr>
+            <tr><td>7</td><td>Cycle</td><td>Standard</td></tr>
+            <tr><td>8</td><td>Animal</td><td>India-specific</td></tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>AIMCRS India Traffic Dataset | Patent Pending IN202541120892</p>
+        <p>Built by Abheet Prem Manghnani | Chennai, India</p>
+        <p>Last updated: {{ now }}</p>
+    </div>
+</body>
+</html>

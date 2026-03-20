@@ -1,0 +1,36 @@
+# AIMCRS Traffic Demo — Requirements
+# Core
+flask>=3.0.0
+loguru>=0.7.0
+python-dotenv>=1.0.0
+tqdm>=4.66.0
+click>=8.1.0
+pyyaml>=6.0.0
+requests>=2.31.0
+
+# Video Download
+yt-dlp>=2024.1.0
+
+# Data Science
+pandas>=2.0.0
+numpy>=1.24.0
+Pillow>=10.0.0
+opencv-python>=4.8.0
+imagehash>=4.3.0
+
+# AI / ML
+ultralytics>=8.0.0
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Data Sources
+kaggle>=1.6.0
+roboflow>=1.0.0
+beautifulsoup4>=4.12.0
+aiohttp>=3.9.0
+
+# Augmentation
+albumentations>=1.3.0
+
+# Dashboard
+plotly>=5.18.0
