@@ -80,3 +80,75 @@ diff -ru pocket-bot /tmp/pocket-bot-upstream --exclude=.git --exclude=.vs
 
 Review the diff and apply what you want by hand, so local modifications aren't
 clobbered. Then update the "Vendored at commit" row above.
+
+---
+
+## `agency-agents/` — The Agency (AI agent definitions)
+
+| | |
+|---|---|
+| **Upstream** | https://github.com/msitarzewski/agency-agents |
+| **Author / owner** | msitarzewski and 107 other contributors ("AgentLand Contributors") |
+| **Project site** | https://agencyagents.app |
+| **Vendored at commit** | `647c8baa42b6842afb4a97bf2c0950d45ba88e8b` (2026-09-06) |
+| **Copied on** | 2026-09-07 |
+| **License** | **MIT** — see `agency-agents/LICENSE` |
+
+### Why it's here
+
+A library of 268 specialist AI agent definitions (markdown prompt files) plus
+the tooling to install them into 16 different AI coding tools. Copied locally so
+the roster can be browsed, adapted, and cherry-picked without depending on
+upstream.
+
+### What was copied
+
+All 356 tracked files from upstream, unmodified — every division directory, the
+`scripts/` tooling, `tools.json`, `divisions.json`, `LICENSE`, and the
+documentation. Nothing was removed and no file contents were altered.
+
+Note: `agency-agents/.github/` carries upstream's 6 CI workflows. These are
+**inert here** — GitHub only reads workflows from `.github/workflows/` at the
+repository root, and these sit one level down. They were kept so the copy stays
+faithful. Do not move that directory to the repository root unless you actually
+want upstream's CI running on this repo.
+
+### Licensing
+
+MIT — genuinely permissive. You may use, modify, merge, publish, and even sell
+this, commercially or not. The single condition is that the copyright notice and
+licence text in `agency-agents/LICENSE` are preserved in any copy or substantial
+portion. Keep that file where it is.
+
+### What's actually in it
+
+* **268 agent definitions** across 21 divisions — engineering (59), specialized
+  (58), marketing (36), gis (13), security (12), design (10), and smaller sets
+  for sales, testing, finance, healthcare, academic, game development, spatial
+  computing, and others.
+* Each agent is a markdown file with YAML frontmatter (`name`, `description`,
+  `color`, `emoji`, `vibe`) followed by identity, mission, workflows, and
+  success metrics.
+* `scripts/convert.sh` converts one agent definition into the formats expected
+  by 16 tools: Claude Code, Codex, Gemini CLI, GitHub Copilot, Qwen, Cursor,
+  opencode, Osaurus, Aider, Antigravity, Kimi, OpenClaw, Windsurf, Hermes,
+  Mistral Vibe, ZCode.
+* `scripts/install.sh` auto-detects installed tools and installs by division or
+  by individual agent; supports `--dry-run`.
+* `scripts/lint-agents.sh` and `check-agent-originality.sh` enforce house style
+  and catch duplicated agents.
+
+### Re-syncing with upstream
+
+As with `pocket-bot/`, this is a plain file copy — no submodule, no upstream
+link. To check for changes:
+
+```sh
+git clone --depth 1 https://github.com/msitarzewski/agency-agents.git /tmp/agency-upstream
+diff -ru agency-agents /tmp/agency-upstream --exclude=.git
+```
+
+Upstream is very active (413 commits, 108 contributors, first commit Oct 2025),
+so expect this copy to drift quickly. If you want to track it properly rather
+than re-diffing by hand, fork the upstream repo on GitHub instead — a fork keeps
+the upstream link and GitHub will surface new commits for you.
